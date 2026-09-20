@@ -20,7 +20,18 @@ from typing import List, Tuple
 # used for testing the code that reads from input
 from unittest.mock import patch, mock_open
 
-from pyext import RuntimeModule
+from types import ModuleType
+
+# replaces the unmaintained pyext package (fails to import on Python >= 3.11)
+class RuntimeModule:
+    @staticmethod
+    def from_string(name, docstring, s):
+        g = {}
+        exec(s, g)
+        module = ModuleType(name, docstring)
+        module.__dict__.update(g)
+        sys.modules[name] = module
+        return module
 
 from enum import Enum
 class CODE_TYPE(Enum):
